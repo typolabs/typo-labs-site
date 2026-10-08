@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Typo Games</title>
+<meta name="description" content="Typo Games">
+<meta name="theme-color" content="#ecf0f2">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<style>
+  /* Layout: one logo, dead centre, and it is the only control on the page. */
+  :root {
+    /* The three colours in the logo files */
+    --typo-light: #ecf0f2;
+    --typo-dark:  #27272b;
+    --typo-red:   #cc444b;
+
+    /* Light background is the default */
+    --bg: var(--typo-light);
+    --show-on-light: 1;
+    --show-on-dark: 0;
+    color-scheme: light;
+  }
+  /* Before the script runs (or if it can't), follow the visitor's device setting */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-bg="light"]) {
+      --bg: var(--typo-dark);
+      --show-on-light: 0;
+      --show-on-dark: 1;
+      color-scheme: dark;
+    }
+  }
+  /* Set by pressing the logo */
+  :root[data-bg="dark"] {
+    --bg: var(--typo-dark);
+    --show-on-light: 0;
+    --show-on-dark: 1;
+    color-scheme: dark;
+  }
+
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    padding-inline: 16px;
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    transition: background-color 0.35s ease;
+  }
+
+  .logo-button {
+    display: grid;
+    /* 20rem wide at most, and never taller than 70% of the screen */
+    width: min(100%, 20rem, calc(70vh * 639 / 730));
+    padding: 0;
+    border: 0;
+    border-radius: 24px;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.2s ease;
+  }
+  .logo-button:hover { transform: scale(1.03); }
+  .logo-button:active { transform: scale(0.96); }
+  .logo-button:focus-visible {
+    outline: 3px solid var(--typo-red);
+    outline-offset: 8px;
+  }
+
+  /* Both versions of the logo sit on top of each other and cross-fade */
+  .logo-button img {
+    grid-area: 1 / 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: opacity 0.35s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .logo-on-light { opacity: var(--show-on-light); }
+  .logo-on-dark  { opacity: var(--show-on-dark); }
+
+  @media (prefers-reduced-motion: reduce) {
+    body, .logo-button, .logo-button img { transition: none; }
+    .logo-button:hover, .logo-button:active { transform: none; }
+  }
+</style>
+<script>
+  // Decide the starting background before the page paints, so there is no flash.
+  (function () {
+    var root = document.documentElement;
+    var saved = null;
+    try { saved = localStorage.getItem("typo-bg"); } catch (e) {}
+    var start = saved === "dark" || saved === "light" ? saved
+      : root.getAttribute("data-theme")
+      || (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    root.setAttribute("data-bg", start === "dark" ? "dark" : "light");
+  })();
+</script>
+</head>
+<body>
+
+<button class="logo-button" id="logo-button" type="button" aria-label="Switch background colour">
+  <img class="logo-on-light" src="logo-on-light.png" width="639" height="730" alt="Typo Games" draggable="false">
+  <img class="logo-on-dark" src="logo-on-dark.png" width="639" height="730" alt="" aria-hidden="true" draggable="false">
+</button>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById("logo-button");
+    var themeColor = document.querySelector('meta[name="theme-color"]');
+    var colours = { light: "#ecf0f2", dark: "#27272b" };
+
+    function apply(mode) {
+      root.setAttribute("data-bg", mode);
+      button.setAttribute("aria-pressed", mode === "dark" ? "true" : "false");
+      if (themeColor) themeColor.setAttribute("content", colours[mode]);
+    }
+
+    apply(root.getAttribute("data-bg") === "dark" ? "dark" : "light");
+
+    button.addEventListener("click", function () {
+      var next = root.getAttribute("data-bg") === "dark" ? "light" : "dark";
+      apply(next);
+      try { localStorage.setItem("typo-bg", next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>
