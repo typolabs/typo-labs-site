@@ -1,0 +1,14 @@
+#!/bin/sh
+# Workshop guard: refuses to create commits while on main.
+# Installed as BOTH pre-commit and prepare-commit-msg, because revert,
+# cherry-pick and merge commits skip pre-commit. The user's merge flow
+# (GitHub's merge button, or `git merge --ff-only` + `git pull`) creates no
+# local commit, so it is never blocked.
+branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+if [ "$branch" = "main" ]; then
+  echo "✋ guard: commits on 'main' are blocked in this workshop." >&2
+  echo "   Your changes are kept. Move them to a branch, then commit there:" >&2
+  echo "     git switch -c claude/<task>" >&2
+  exit 1
+fi
+exit 0

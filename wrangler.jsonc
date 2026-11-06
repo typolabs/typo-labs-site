@@ -1,0 +1,13 @@
+// Cloudflare config for the main typolabs.io site.
+// It's a static site: Cloudflare serves the files in this folder as-is.
+// Files that must NOT be published are listed in .assetsignore.
+// Idea sites (e.g. typolabs.io/adlib) are separate Cloudflare projects, each
+// attached to its own route, so they don't need any config here.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "typolabs-site",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "."
+  }
+}
